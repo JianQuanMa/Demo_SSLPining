@@ -47,7 +47,16 @@ enum Router: URLRequestConvertible {
 }
 
 final class NetworkClient {
-  let session = Session.default
+  
+  let evaluators = ["api.stackexchange.com": PinnedCertificatesTrustEvaluator(certificates: [Certificates.stackExchange])]
+  
+  let session: Session
+  
+  private init() {
+    session = Session(
+      serverTrustManager: ServerTrustManager(evaluators: evaluators)
+    )
+  }
   
   // MARK: - Static Definitions
   
@@ -59,10 +68,10 @@ final class NetworkClient {
 }
 
 struct Certificates{
-  static let stackExchange = Certificates
+  static let stackExchange = Certificates.certificates(filename: "stackexchange.com")
   
   private static func certificates(filename: String) -> SecCertificate{
-    let filepath = Bundle.main.path(forResource: filename, ofType: "der")
+    let filepath = Bundle.main.path(forResource: filename, ofType: "der")!
     let data = try! Data(contentsOf: URL(fileURLWithPath: filepath))
     let certificate = SecCertificateCreateWithData(nil, data as CFData)!
     return certificate

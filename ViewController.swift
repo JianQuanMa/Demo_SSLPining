@@ -49,15 +49,26 @@ class ViewController: UIViewController {
     tableView.isHidden = true
     tableView.dataSource = self
     
-    NetworkClient.request(Router.users)
-      .responseDecodable { (response: DataResponse<UserList>) in
-        switch response.result {
-        case .success(let value):
-          self.users = value.users
-        case .failure(let error):
-          self.presentError(withTitle: "Oops!", message: error.localizedDescription)
-        }
+//    NetworkClient.request(Router.users)
+//      .responseDecodable { (response: DataResponse<UserList>) in
+//        switch response.result {
+//        case .success(let value):
+//          self.users = value.users
+//        case .failure(let error):
+//          self.presentError(withTitle: "Oops!", message: error.localizedDescription)
+//        }
+//      }
+    NetworkClient.request(Router.users).responseDecodable { (response: DataResponse<UserList>) in
+      switch response.result{
+      case .success(let value):
+      self.users = value.users
+      case .failure(let error):
+        let isServerTrustEvaluationError = error.asAFError?.isServerTrustEvaluationError ?? false
+        let message = isServerTrustEvaluationError ? "certificate pinning error": error.localizedDescription
+        self.presentError(withTitle: "oops!", message: message)
+        
       }
+    }
   }
   
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
