@@ -57,3 +57,15 @@ final class NetworkClient {
     return shared.session.request(convertible)
   }
 }
+
+struct Certificates{
+  static let stackExchange = Certificates
+  
+  private static func certificates(filename: String) -> SecCertificate{
+    let filepath = Bundle.main.path(forResource: filename, ofType: "der")
+    let data = try! Data(contentsOf: URL(fileURLWithPath: filepath))
+    let certificate = SecCertificateCreateWithData(nil, data as CFData)!
+    return certificate
+  }
+  
+}
